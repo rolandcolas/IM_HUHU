@@ -1,32 +1,40 @@
 require('dotenv').config();
 
-
-
 const express = require("express");
-const mysql = require('mysql'); // Corrected the package name
+const mysql = require('mysql');
 const cors = require('cors');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Create MySQL connection
 const db = mysql.createConnection({
-    host: process.env.DB_HOST,        // Use environment variable
-    user: process.env.DB_USERNAME,    // Use environment variable
-    password: process.env.DB_PASSWORD, // Use environment variable
-    database: process.env.DB_DBNAME    // Use environment variable
+    host: process.env.DB_HOST,
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DBNAME
 });
 
+// Test database connection
+db.connect(err => {
+    if (err) {
+        console.error('Database connection failed:', err);
+        return;
+    }
+    console.log('Connected to database');
+});
 
+// Signup endpoint
 app.post('/api/signup', (req, res) => {
-    const sql = "INSERT INTO students (`ID`, `email`, `password`, `firstName`, `lastName`, `yearLevel`) VALUES (?)";
+    const sql = "INSERT INTO students (`ID`, `email`, `password`, `Last_name`, `First_name`, `Year_Level`) VALUES (?)";
     const values = [
         req.body.ID,
         req.body.email,
         req.body.password,
-        req.body.firstName,
-        req.body.lastName,
-        req.body.yearLevel
+        req.body.lastName, // Ensure it matches Last_name
+        req.body.firstName, // Ensure it matches First_name
+        req.body.yearLevel // Ensure it matches Year_Level
     ];
     
     db.query(sql, [values], (err, data) => {
@@ -38,11 +46,14 @@ app.post('/api/signup', (req, res) => {
     });
 });
 
+
+// Login endpoint
 app.post('/api/login', (req, res) => {
     const sql = "SELECT * FROM students WHERE `email` = ? AND `password` = ?";
-    
+
     db.query(sql, [req.body.email, req.body.password], (err, data) => {
         if (err) {
+            console.error('Error during login:', err); // Log specific error
             return res.json("Error");
         }
         if (data.length > 0) {
@@ -53,17 +64,15 @@ app.post('/api/login', (req, res) => {
     });
 });
 
+// Home route
 app.get('/', (req, res) => res.send("API is working"));
 
-app.use((req, res, next) => {
-    console.log(`${req.method} ${req.url}`);
-    next();
-});
-
-app.listen(8081, () => {
-    console.log("listening on port 8081");
-});
-
+// 404 route
 app.use((req, res) => {
     res.status(404).send("Page not found");
+});
+
+// Start server
+app.listen(8081, () => {
+    console.log("listening on port 8081");
 });

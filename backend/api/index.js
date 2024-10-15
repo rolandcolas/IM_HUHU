@@ -76,3 +76,8 @@ app.use((req, res) => {
 app.listen(8081, () => {
     console.log("listening on port 8081");
 });
+
+app.get('/api/signup', (req, res) => {
+    // Logic to retrieve data
+    res.json({ message: 'GET request successful' });
+});

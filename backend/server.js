@@ -63,3 +63,7 @@ app.use((req, res, next) => {
 app.listen(8081, () => {
     console.log("listening on port 8081");
 });
+
+app.use((req, res) => {
+    res.status(404).send("Page not found");
+});

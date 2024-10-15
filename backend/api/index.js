@@ -81,3 +81,5 @@ app.get('/api/signup', (req, res) => {
     // Logic to retrieve data
     res.json({ message: 'GET request successful' });
 });
+
+module.exports = app;
